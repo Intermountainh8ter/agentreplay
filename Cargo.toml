@@ -1,0 +1,25 @@
+[package]
+name = "agentreplay"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+description = "Deterministic trajectory format and replay/injection engine for LLM agents. Rewind to any step, inject a different tool result or response, and continue."
+repository = "https://github.com/Intermountainh8ter/agentreplay"
+keywords = ["llm", "agent", "replay", "debugging", "trajectory"]
+categories = ["command-line-utilities", "development-tools::debugging"]
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+sha2 = "0.10"
+hex = "0.4"
+
+[[bin]]
+name = "agentreplay"
+path = "src/main.rs"
+
+[lib]
+name = "agentreplay"
+path = "src/lib.rs"
