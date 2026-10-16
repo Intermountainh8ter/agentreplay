@@ -6,6 +6,8 @@
 //! `k` onward with a different content hash. Determinism checks are then
 //! equality on this chained hash.
 
+pub mod http;
+
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
