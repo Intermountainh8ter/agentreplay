@@ -33,16 +33,30 @@ enum Cmd {
         replacement: std::path::PathBuf,
         out: std::path::PathBuf,
     },
-    /// Replay a trajectory against its own recorded responses
-    /// (reproducibility smoke test). Prints the ReplayReport.
-    ///
-    /// Live-endpoint replay is a follow-up; this subcommand runs the
-    /// pre-reg §2 byte-identical replay against the built-in
-    /// `RecordedEndpoint` stub, which proves the replay plumbing works
-    /// and that the trajectory is internally consistent (one captured
-    /// LlmResponse per LlmRequest).
+    /// Replay a trajectory. Without `--live` it replays against its own
+    /// recorded responses (the built-in `RecordedEndpoint` stub), which
+    /// proves the plumbing and internal consistency. With `--live` it
+    /// re-sends every recorded request to the HTTP endpoint and runs the
+    /// pre-reg §2 byte-identical comparison against what comes back.
+    /// Exits 1 when not reproducible.
     Replay {
         trajectory: std::path::PathBuf,
+        /// JSON `HttpEndpointConfig` (`url`, optional `api_key_env`, ...).
+        #[arg(long)]
+        live: Option<std::path::PathBuf>,
+    },
+    /// Record a single-turn trajectory by POSTing a request body file to
+    /// a live HTTP endpoint and capturing the raw response bytes.
+    Record {
+        /// JSON `HttpEndpointConfig`.
+        #[arg(long)]
+        endpoint: std::path::PathBuf,
+        /// File whose bytes are sent verbatim as the request body.
+        #[arg(long)]
+        request: std::path::PathBuf,
+        #[arg(long)]
+        run_id: String,
+        out: std::path::PathBuf,
     },
     Version,
 }
@@ -73,15 +87,41 @@ fn main() -> anyhow::Result<()> {
             std::fs::write(&out, serde_json::to_vec_pretty(&modified)?)?;
             println!("wrote {}", out.display());
         }
-        Cmd::Replay { trajectory } => {
+        Cmd::Replay { trajectory, live } => {
             let t: Trajectory = load_json(&trajectory)?;
-            let mut ep = RecordedEndpoint::from_trajectory(&t);
-            let report = replay(&t, &mut ep);
+            let report = match live {
+                None => {
+                    let mut ep = RecordedEndpoint::from_trajectory(&t);
+                    replay(&t, &mut ep)
+                }
+                Some(cfg_path) => {
+                    let cfg: agentreplay::http::HttpEndpointConfig = load_json(&cfg_path)?;
+                    let mut ep = agentreplay::http::HttpEndpoint::new(cfg)?;
+                    let report = replay(&t, &mut ep);
+                    if let Some(e) = ep.take_last_error() {
+                        anyhow::bail!("live endpoint error: {e}");
+                    }
+                    report
+                }
+            };
             let reproducible = report.reproducible;
             println!("{}", serde_json::to_string_pretty(&report)?);
             if !reproducible {
                 std::process::exit(1);
             }
+        }
+        Cmd::Record {
+            endpoint,
+            request,
+            run_id,
+            out,
+        } => {
+            let cfg: agentreplay::http::HttpEndpointConfig = load_json(&endpoint)?;
+            let mut ep = agentreplay::http::HttpEndpoint::new(cfg)?;
+            let body = std::fs::read(&request)?;
+            let t = agentreplay::http::record_single_turn(&mut ep, &run_id, &body)?;
+            std::fs::write(&out, serde_json::to_vec_pretty(&t)?)?;
+            println!("recorded {} steps; hash {}", t.steps.len(), trajectory_hash(&t));
         }
         Cmd::Version => println!("agentreplay {}", env!("CARGO_PKG_VERSION")),
     }

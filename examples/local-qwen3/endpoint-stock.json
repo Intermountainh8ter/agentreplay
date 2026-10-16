@@ -1,0 +1,5 @@
+{
+  "url": "http://127.0.0.1:8081/v1/chat/completions",
+  "timeout_s": 120,
+  "max_retries": 3
+}
