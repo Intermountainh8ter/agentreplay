@@ -1,0 +1,14 @@
+{
+  "n_files": 6,
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "sha256": {
+    "agentreplay/examples/local-qwen3/endpoint-stock.json": "56d5e5667aeb8ffb747ca5083cb0305d88a78bb7c149e4feb87b48b16f8ab207",
+    "agentreplay/examples/local-qwen3/request-planets.json": "07707766e18f96f55fba675493a97aa4efaaab92dea08be39a9d4c8bfd963559",
+    "agentreplay/results/local-qwen3/planets-stock-run1.json": "aab427c82379cd5e164609a491e044af4fd32191ded9eafeb12d3e4c62cbc143",
+    "agentreplay/results/local-qwen3/planets-stock-run1.live-replay.json": "f71a18e4a3c06cf554c3bd0a956db30d09356f1b1ff6cfd23c700515513b8537",
+    "agentreplay/results/local-qwen3/planets-stock-run1.stub-replay.json": "fd58def68407d1933563e10b308110c3ab66ad05d57d859cd9b1ac858930ba0e",
+    "agentreplay/results/local-qwen3/planets-stock-run2.json": "fd36f4aa0f45df6e1a0b156f8bd00a6751ce6c6fd95895c72a6741a0ccf1187c"
+  },
+  "tool": "bench-report 0.1.0",
+  "unix_time": 1792173436
+}

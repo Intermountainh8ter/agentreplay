@@ -1,0 +1,7 @@
+{
+  "run_id": "planets-stock-run1",
+  "n_llm_requests": 1,
+  "n_llm_responses_checked": 1,
+  "reproducible": true,
+  "first_divergence": null
+}

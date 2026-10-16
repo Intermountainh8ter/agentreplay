@@ -1,0 +1,12 @@
+{
+  "run_id": "planets-stock-run1",
+  "n_llm_requests": 1,
+  "n_llm_responses_checked": 1,
+  "reproducible": false,
+  "first_divergence": {
+    "step_index": 1,
+    "captured_step_hash": "1f8bf4652349631f21bb37bb77fb11449aff0296874dd9f251fb88838b877a6f",
+    "expected_len": 684,
+    "actual_len": 673
+  }
+}
