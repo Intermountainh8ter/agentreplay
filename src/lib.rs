@@ -199,6 +199,46 @@ pub fn replay(t: &Trajectory, endpoint: &mut dyn ReplayEndpoint) -> ReplayReport
     }
 }
 
+/// Append a replay-generated tail to an injected trajectory. Pre-reg §3:
+/// "Running an endpoint against the modified trajectory produces a new
+/// tail; the tail is appended, and the resulting full trajectory is
+/// independently reproducible."
+///
+/// `base` is the injection output (steps 0..at + replacement). `tail`
+/// is the sequence of new steps the endpoint produced from the inject
+/// point forward. The returned trajectory concatenates them and keeps
+/// `base`'s run_id, so the merged value is a valid Trajectory the
+/// `replay()` primitive can accept.
+pub fn merge(base: &Trajectory, tail: &[Step]) -> Trajectory {
+    let mut steps = base.steps.clone();
+    steps.extend_from_slice(tail);
+    Trajectory {
+        run_id: base.run_id.clone(),
+        steps,
+    }
+}
+
+/// Common wrapper: `inject(t, at, replacement)` followed by `merge`
+/// of `tail`. Returns the merged trajectory a reviewer can replay.
+pub fn inject_and_merge(
+    t: &Trajectory,
+    at: usize,
+    replacement: Step,
+    tail: &[Step],
+) -> Trajectory {
+    let base = inject(t, at, replacement);
+    merge(&base, tail)
+}
+
+/// Verify the pre-reg §3 "independently reproducible" claim: the
+/// merged trajectory, when replayed against a `RecordedEndpoint`
+/// built from itself, must reproduce byte-for-byte. Returns the
+/// `ReplayReport` so a caller can gate on it.
+pub fn verify_merged_reproducible(merged: &Trajectory) -> ReplayReport {
+    let mut ep = RecordedEndpoint::from_trajectory(merged);
+    replay(merged, &mut ep)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -326,5 +366,55 @@ mod tests {
         let s = serde_json::to_string(&r).unwrap();
         let r2: ReplayReport = serde_json::from_str(&s).unwrap();
         assert_eq!(r, r2);
+    }
+
+    #[test]
+    fn merge_concatenates_tail_and_preserves_run_id() {
+        let base = Trajectory {
+            run_id: "base".into(),
+            steps: vec![step_q(b"q1"), step_r(b"r1")],
+        };
+        let tail = vec![step_q(b"q2"), step_r(b"r2")];
+        let merged = merge(&base, &tail);
+        assert_eq!(merged.run_id, "base");
+        assert_eq!(merged.steps.len(), 4);
+    }
+
+    #[test]
+    fn inject_and_merge_builds_a_replayable_trajectory() {
+        let t = interleaved_pair();
+        let replacement = Step::ToolResult {
+            tool: "search".into(),
+            result_bytes: b"[\"different\"]".to_vec(),
+        };
+        // After injection at step 3, the base has steps 0..3 + replacement.
+        // Simulate the endpoint producing a new tail of (LlmRequest,
+        // LlmResponse, Terminal).
+        let tail = vec![
+            step_q(b"did-you-see-different"),
+            step_r(b"yes-i-did"),
+            Step::Terminal {
+                outcome: "success".into(),
+            },
+        ];
+        let merged = inject_and_merge(&t, 3, replacement, &tail);
+        // 3 preserved + 1 injected + 3 tail = 7
+        assert_eq!(merged.steps.len(), 7);
+        let r = verify_merged_reproducible(&merged);
+        assert!(r.reproducible, "{r:?}");
+    }
+
+    #[test]
+    fn merged_trajectory_chained_hash_differs_from_the_original() {
+        let t = interleaved_pair();
+        let merged = inject_and_merge(
+            &t,
+            1,
+            step_r(b"different-response"),
+            &[Step::Terminal {
+                outcome: "success".into(),
+            }],
+        );
+        assert_ne!(trajectory_hash(&t), trajectory_hash(&merged));
     }
 }
