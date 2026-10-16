@@ -1,6 +1,7 @@
 [package]
 name = "agentreplay"
-version = "0.0.1"
+version = "0.1.0"
+authors = ["Intermountainh8ter"]
 edition = "2021"
 license = "MIT"
 description = "Deterministic trajectory format and replay/injection engine for LLM agents. Rewind to any step, inject a different tool result or response, and continue."
