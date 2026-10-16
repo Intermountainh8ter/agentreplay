@@ -24,18 +24,26 @@ rebuilt a bad version of this in-house.
 - `Trajectory` with `step_hashes` and `trajectory_hash` content-chain
   hashing.
 - `inject(t, at, replacement)` — pre-serve step `at`, drop the tail.
-- `agentreplay hash` and `agentreplay inject` CLI.
+- `ReplayEndpoint` trait: implementors return response bytes for a
+  given request-bytes. HTTP-free; this crate never pulls a client.
+- `RecordedEndpoint::from_trajectory(&t)` — a stub endpoint that
+  replays the trajectory's own captured LlmResponse bytes in order.
+  Primary use: a reproducibility smoke test for the plumbing.
+- `replay(&t, &mut endpoint) -> ReplayReport`: pre-reg §2 byte-identical
+  replay. Walks the trajectory, invokes the endpoint on every
+  LlmRequest, compares its output to the next LlmResponse, stops at
+  the first byte mismatch and names the drifted step (pre-reg §4:
+  no "replayed close enough").
+- `agentreplay hash`, `agentreplay inject`, `agentreplay replay` CLIs.
+  `replay` exits 1 on drift so pipelines can gate.
 
 Not in this commit (openly tracked):
 
 - `agentreplay record --wrap <command>` — a shim that captures a run.
-- `agentreplay replay <trajectory>` that drives a live model stub or
-  endpoint with the captured prompts and compares its outputs to the
-  recorded ones.
 - Reference adapters for OpenAI-compatible / Anthropic / local
-  llama.cpp endpoints.
+  llama.cpp endpoints (built on `ReplayEndpoint`).
 - Deterministic seed capture so same trajectory + same seed = same
-  continuation.
+  continuation on a live endpoint.
 
 ## Usage (scaffold)
 
@@ -43,6 +51,7 @@ Not in this commit (openly tracked):
 cargo install --path .
 agentreplay hash trajectory.json
 agentreplay inject trajectory.json --at 3 --replacement step.json modified.json
+agentreplay replay trajectory.json  # reproducibility smoke test
 ```
 
 ## License
