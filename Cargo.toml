@@ -31,3 +31,5 @@ path = "src/main.rs"
 [lib]
 name = "agentreplay"
 path = "src/lib.rs"
+
+[workspace]
