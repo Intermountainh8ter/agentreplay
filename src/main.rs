@@ -106,6 +106,20 @@ enum Cmd {
         #[arg(long)]
         out: std::path::PathBuf,
     },
+    /// Score empty, constant and random policies against synthetic tasks with
+    /// accepting graders and unsolvable tasks.
+    Emptyfloor {
+        #[arg(long)]
+        seed: u64,
+        #[arg(long)]
+        tasks: usize,
+        #[arg(long)]
+        accept_share: f64,
+        #[arg(long)]
+        unsolvable_share: f64,
+        #[arg(long)]
+        out: std::path::PathBuf,
+    },
     Version,
 }
 
@@ -219,6 +233,24 @@ fn main() -> anyhow::Result<()> {
                 "started_at": iso(started),
                 "seeds": [seed],
                 "command": format!("agentreplay consistency --seed {seed} --tasks {tasks} --runs {runs} --calls {calls} --tools {tools} --arg-values {arg_values} --out {}", out.display()),
+                "hardware": "cpu",
+                "wall_s": t0.elapsed().as_secs_f64(),
+                "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],
+            });
+            std::fs::write(&out, serde_json::to_vec_pretty(&v)?)?;
+            println!("wrote {}", out.display());
+        }
+        Cmd::Emptyfloor { seed, tasks, accept_share, unsolvable_share, out } => {
+            let started = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)?
+                .as_secs();
+            let t0 = std::time::Instant::now();
+            let r = agentreplay::emptyfloor::run(seed, tasks, accept_share, unsolvable_share);
+            let mut v = serde_json::to_value(&r)?;
+            v["provenance"] = serde_json::json!({
+                "started_at": iso(started),
+                "seeds": [seed],
+                "command": format!("agentreplay emptyfloor --seed {seed} --tasks {tasks} --accept-share {accept_share} --unsolvable-share {unsolvable_share} --out {}", out.display()),
                 "hardware": "cpu",
                 "wall_s": t0.elapsed().as_secs_f64(),
                 "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],

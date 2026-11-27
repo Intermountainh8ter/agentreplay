@@ -1,0 +1,30 @@
+{
+  "accept_share": 0.2,
+  "answer_space": 1000,
+  "floor": {
+    "constant_policy_success_rate": 0.2005,
+    "empty_policy_success_rate": 0.2005,
+    "observed_accept_share": 0.2005,
+    "observed_unsolvable_share": 0.38625,
+    "random_minus_empty": 0.0005000000000000004,
+    "random_policy_success_rate": 0.201
+  },
+  "provenance": {
+    "command": "agentreplay emptyfloor --seed 7 --tasks 4000 --accept-share 0.2 --unsolvable-share 0.38 --out results/729-emptyfloor.json",
+    "data_sources": [
+      {
+        "license": "MIT",
+        "url": "synthetic: seeded generator in-repo"
+      }
+    ],
+    "hardware": "cpu",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-27T22:37:25Z",
+    "wall_s": 0.000151592
+  },
+  "seed": 7,
+  "tasks": 4000,
+  "unsolvable_share": 0.38
+}

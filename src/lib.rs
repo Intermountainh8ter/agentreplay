@@ -9,6 +9,7 @@
 pub mod chance;
 pub mod consistency;
 pub mod cutpoint;
+pub mod emptyfloor;
 pub mod http;
 
 use serde::{Deserialize, Serialize};

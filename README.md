@@ -84,3 +84,9 @@ In `results/690-consistency-floor.json` (5 tools, 4 argument values, 3 calls, 10
 4000 tasks) the random caller scores 0.007794444444444444 structural against
 0.008 closed form, and 0.0001388888888888889 argument against 0.000125.
 Reproduce: `cargo run --locked -q --release -- consistency --seed 7 --tasks 4000 --runs 10 --calls 3 --tools 5 --arg-values 4 --out results/690-consistency-floor.json`
+
+## Empty-answer floor
+
+`agentreplay emptyfloor` scores empty, constant and seeded random policies on synthetic tasks where a share of graders accept any output and a share of tasks is unsolvable.
+In `results/729-emptyfloor.json` the empty and constant policies each succeed on 0.2005 of 4000 tasks, equal to the observed accepting share (0.2005), and the random policy on 0.201.
+Reproduce: `cargo run --locked -q --release -- emptyfloor --seed 7 --tasks 4000 --accept-share 0.2 --unsolvable-share 0.38 --out results/729-emptyfloor.json`

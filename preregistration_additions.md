@@ -21,3 +21,11 @@ Hypothesis: for a uniform random caller with 5 tools, 4 argument values, 3 calls
 Metric: `/consistency_floor/structural_consistency_random_caller`. Expected: within 0.003 of 0.008 (range 0.005-0.011).
 
 Falsifier: simulated structural consistency outside 0.005-0.011, or an absolute gap to the closed form above 0.003.
+
+## 2026-11-27T22:37:21Z emptyfloor proposal:f85f9b89afa9e94b1e6bc588d542c12ffee6989277db7081455e8a6ae6cd7efc
+
+Hypothesis: on 4000 seeded synthetic tasks (seed 7) with an empty-answer-accepting share of 0.2 and an unsolvable share of 0.38, an input-oblivious empty-answer policy succeeds on a share within 0.02 of 0.2, and a constant policy that never matches a specific answer succeeds on no more than that share plus 0.02, so the floor is set by the benchmark's accept share and not by the policy.
+
+Metric: `/floor/constant_policy_success_rate`. Expected: within 0.02 of 0.2 (range 0.18-0.22).
+
+Falsifier: constant-policy success rate outside 0.18-0.22, or the random policy exceeding the empty-answer policy by more than 0.02.
