@@ -65,3 +65,12 @@ against tool-call-presence assertions derived from synthetic trajectories.
 In `results/636-chance-floor.json` the random caller passes 0.4975 of 24000
 assertions, never-calls 0.3956 and always-calls 0.6044 (call share 0.6).
 Reproduce: `cargo run --locked -q --release -- chance --seed 7 --trajectories 200 --turns 120 --call-share 0.6 --out results/636-chance-floor.json`
+
+## Cut-point floor
+
+`agentreplay cutpoint` serves the first k turns of synthetic trajectories from
+the record and the rest from a never-calls, always-calls or seeded random stub,
+and reports the share of trajectories whose tool-call sequence diverges.
+In `results/653-cutpoint-floor.json` the random stub diverges in 0.925 of 200
+trajectories at cut 116 (last 4 of 120 turns), 0.73 at cut 118 and 1.0 at cut 100.
+Reproduce: `cargo run --locked -q --release -- cutpoint --seed 7 --trajectories 200 --turns 120 --call-share 0.6 --cuts 0,60,100,110,114,116,118,120 --out results/653-cutpoint-floor.json`

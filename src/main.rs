@@ -72,6 +72,22 @@ enum Cmd {
         #[arg(long)]
         out: std::path::PathBuf,
     },
+    /// Replay synthetic trajectories with the first k turns served from the
+    /// record and the rest from a degenerate stub; report divergence share.
+    Cutpoint {
+        #[arg(long)]
+        seed: u64,
+        #[arg(long)]
+        trajectories: usize,
+        #[arg(long)]
+        turns: usize,
+        #[arg(long)]
+        call_share: f64,
+        #[arg(long, value_delimiter = ',')]
+        cuts: Vec<usize>,
+        #[arg(long)]
+        out: std::path::PathBuf,
+    },
     Version,
 }
 
@@ -148,6 +164,25 @@ fn main() -> anyhow::Result<()> {
                 "started_at": iso(started),
                 "seeds": [seed],
                 "command": format!("agentreplay chance --seed {seed} --trajectories {trajectories} --turns {turns} --call-share {call_share} --out {}", out.display()),
+                "hardware": "cpu",
+                "wall_s": t0.elapsed().as_secs_f64(),
+                "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],
+            });
+            std::fs::write(&out, serde_json::to_vec_pretty(&v)?)?;
+            println!("wrote {}", out.display());
+        }
+        Cmd::Cutpoint { seed, trajectories, turns, call_share, cuts, out } => {
+            let started = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)?
+                .as_secs();
+            let t0 = std::time::Instant::now();
+            let r = agentreplay::cutpoint::run(seed, trajectories, turns, call_share, &cuts);
+            let mut v = serde_json::to_value(&r)?;
+            let cuts_s: Vec<String> = cuts.iter().map(|c| c.to_string()).collect();
+            v["provenance"] = serde_json::json!({
+                "started_at": iso(started),
+                "seeds": [seed],
+                "command": format!("agentreplay cutpoint --seed {seed} --trajectories {trajectories} --turns {turns} --call-share {call_share} --cuts {} --out {}", cuts_s.join(","), out.display()),
                 "hardware": "cpu",
                 "wall_s": t0.elapsed().as_secs_f64(),
                 "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],
