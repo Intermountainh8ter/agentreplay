@@ -74,3 +74,13 @@ and reports the share of trajectories whose tool-call sequence diverges.
 In `results/653-cutpoint-floor.json` the random stub diverges in 0.925 of 200
 trajectories at cut 116 (last 4 of 120 turns), 0.73 at cut 118 and 1.0 at cut 100.
 Reproduce: `cargo run --locked -q --release -- cutpoint --seed 7 --trajectories 200 --turns 120 --call-share 0.6 --cuts 0,60,100,110,114,116,118,120 --out results/653-cutpoint-floor.json`
+
+## Consistency floor
+
+`agentreplay consistency` runs a uniform random caller R times per task and
+reports pairwise structural consistency (same tool sequence) and argument
+consistency (same tools and arguments) against the closed forms T^-L and (T*A)^-L.
+In `results/690-consistency-floor.json` (5 tools, 4 argument values, 3 calls, 10 runs,
+4000 tasks) the random caller scores 0.007794444444444444 structural against
+0.008 closed form, and 0.0001388888888888889 argument against 0.000125.
+Reproduce: `cargo run --locked -q --release -- consistency --seed 7 --tasks 4000 --runs 10 --calls 3 --tools 5 --arg-values 4 --out results/690-consistency-floor.json`

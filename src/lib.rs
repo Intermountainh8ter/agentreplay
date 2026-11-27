@@ -7,6 +7,7 @@
 //! equality on this chained hash.
 
 pub mod chance;
+pub mod consistency;
 pub mod cutpoint;
 pub mod http;
 

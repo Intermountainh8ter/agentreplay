@@ -1,0 +1,32 @@
+{
+  "arg_values": 4,
+  "calls": 3,
+  "consistency_floor": {
+    "argument_abs_gap": 0.000013888888888888886,
+    "argument_closed_form": 0.000125,
+    "argument_consistency_random_caller": 0.0001388888888888889,
+    "pairs": 180000,
+    "structural_abs_gap": 0.00020555555555555605,
+    "structural_closed_form": 0.008,
+    "structural_consistency_random_caller": 0.007794444444444444
+  },
+  "provenance": {
+    "command": "agentreplay consistency --seed 7 --tasks 4000 --runs 10 --calls 3 --tools 5 --arg-values 4 --out results/690-consistency-floor.json",
+    "data_sources": [
+      {
+        "license": "MIT",
+        "url": "synthetic: seeded generator in-repo"
+      }
+    ],
+    "hardware": "cpu",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-27T18:45:00Z",
+    "wall_s": 0.012037536
+  },
+  "runs": 10,
+  "seed": 7,
+  "tasks": 4000,
+  "tools": 5
+}

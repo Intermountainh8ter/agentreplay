@@ -13,3 +13,11 @@ Hypothesis: on 200 seeded synthetic trajectories of 120 turns (call share 0.6, s
 Metric: `/cutpoint/random_divergence_share/116`. Expected: at least 0.88 (analytic expectation 1-0.5^4).
 
 Falsifier: random-caller divergence share at cut 116 outside 0.88-0.98, or a later cut showing a higher share than an earlier cut for the random caller.
+
+## 2026-11-27T18:44:55Z consistency-floor proposal:0a83c0712d01d8462e9aecd28be714a7216ce46f6e0bd2fa88fd9995e0f1267d
+
+Hypothesis: for a uniform random caller with 5 tools, 4 argument values, 3 calls per run, 10 repeated runs per task and 4000 tasks (seed 7), the mean pairwise structural consistency (same tool sequence) is within 0.003 of the closed form 5^-3 = 0.008, and the mean pairwise argument consistency (same tools and arguments) is within 0.0005 of 20^-3 = 0.000125.
+
+Metric: `/consistency_floor/structural_consistency_random_caller`. Expected: within 0.003 of 0.008 (range 0.005-0.011).
+
+Falsifier: simulated structural consistency outside 0.005-0.011, or an absolute gap to the closed form above 0.003.

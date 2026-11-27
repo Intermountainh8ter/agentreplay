@@ -88,6 +88,24 @@ enum Cmd {
         #[arg(long)]
         out: std::path::PathBuf,
     },
+    /// Score a uniform random caller's run-to-run consistency against closed
+    /// forms.
+    Consistency {
+        #[arg(long)]
+        seed: u64,
+        #[arg(long)]
+        tasks: usize,
+        #[arg(long)]
+        runs: usize,
+        #[arg(long)]
+        calls: usize,
+        #[arg(long)]
+        tools: usize,
+        #[arg(long)]
+        arg_values: usize,
+        #[arg(long)]
+        out: std::path::PathBuf,
+    },
     Version,
 }
 
@@ -183,6 +201,24 @@ fn main() -> anyhow::Result<()> {
                 "started_at": iso(started),
                 "seeds": [seed],
                 "command": format!("agentreplay cutpoint --seed {seed} --trajectories {trajectories} --turns {turns} --call-share {call_share} --cuts {} --out {}", cuts_s.join(","), out.display()),
+                "hardware": "cpu",
+                "wall_s": t0.elapsed().as_secs_f64(),
+                "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],
+            });
+            std::fs::write(&out, serde_json::to_vec_pretty(&v)?)?;
+            println!("wrote {}", out.display());
+        }
+        Cmd::Consistency { seed, tasks, runs, calls, tools, arg_values, out } => {
+            let started = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)?
+                .as_secs();
+            let t0 = std::time::Instant::now();
+            let r = agentreplay::consistency::run(seed, tasks, runs, calls, tools, arg_values);
+            let mut v = serde_json::to_value(&r)?;
+            v["provenance"] = serde_json::json!({
+                "started_at": iso(started),
+                "seeds": [seed],
+                "command": format!("agentreplay consistency --seed {seed} --tasks {tasks} --runs {runs} --calls {calls} --tools {tools} --arg-values {arg_values} --out {}", out.display()),
                 "hardware": "cpu",
                 "wall_s": t0.elapsed().as_secs_f64(),
                 "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],
