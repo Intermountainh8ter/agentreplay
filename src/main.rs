@@ -58,6 +58,20 @@ enum Cmd {
         run_id: String,
         out: std::path::PathBuf,
     },
+    /// Score never-calls, always-calls and seeded random callers against
+    /// tool-call-presence assertions derived from synthetic trajectories.
+    Chance {
+        #[arg(long)]
+        seed: u64,
+        #[arg(long)]
+        trajectories: usize,
+        #[arg(long)]
+        turns: usize,
+        #[arg(long)]
+        call_share: f64,
+        #[arg(long)]
+        out: std::path::PathBuf,
+    },
     Version,
 }
 
@@ -123,7 +137,39 @@ fn main() -> anyhow::Result<()> {
             std::fs::write(&out, serde_json::to_vec_pretty(&t)?)?;
             println!("recorded {} steps; hash {}", t.steps.len(), trajectory_hash(&t));
         }
+        Cmd::Chance { seed, trajectories, turns, call_share, out } => {
+            let started = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)?
+                .as_secs();
+            let t0 = std::time::Instant::now();
+            let r = agentreplay::chance::run(seed, trajectories, turns, call_share);
+            let mut v = serde_json::to_value(&r)?;
+            v["provenance"] = serde_json::json!({
+                "started_at": iso(started),
+                "seeds": [seed],
+                "command": format!("agentreplay chance --seed {seed} --trajectories {trajectories} --turns {turns} --call-share {call_share} --out {}", out.display()),
+                "hardware": "cpu",
+                "wall_s": t0.elapsed().as_secs_f64(),
+                "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],
+            });
+            std::fs::write(&out, serde_json::to_vec_pretty(&v)?)?;
+            println!("wrote {}", out.display());
+        }
         Cmd::Version => println!("agentreplay {}", env!("CARGO_PKG_VERSION")),
     }
     Ok(())
+}
+
+fn iso(secs: u64) -> String {
+    let (days, rem) = (secs / 86400, secs % 86400);
+    let z = days as i64 + 719468;
+    let era = z.div_euclid(146097);
+    let doe = z.rem_euclid(146097);
+    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = yoe + era * 400 + if m <= 2 { 1 } else { 0 };
+    format!("{y:04}-{m:02}-{d:02}T{:02}:{:02}:{:02}Z", rem / 3600, rem % 3600 / 60, rem % 60)
 }

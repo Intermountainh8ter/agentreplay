@@ -1,0 +1,28 @@
+{
+  "call_share": 0.6,
+  "chance_pass_rate": {
+    "always_caller": 0.604375,
+    "never_caller": 0.395625,
+    "random_caller": 0.49754166666666666
+  },
+  "n_assertions": 24000,
+  "observed_call_share": 0.604375,
+  "provenance": {
+    "command": "agentreplay chance --seed 7 --trajectories 200 --turns 120 --call-share 0.6 --out results/636-chance-floor.json",
+    "data_sources": [
+      {
+        "license": "MIT",
+        "url": "synthetic: seeded generator in-repo"
+      }
+    ],
+    "hardware": "cpu",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-27T06:28:26Z",
+    "wall_s": 0.025472001
+  },
+  "seed": 7,
+  "trajectories": 200,
+  "turns": 120
+}

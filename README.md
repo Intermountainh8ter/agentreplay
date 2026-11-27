@@ -57,3 +57,11 @@ agentreplay replay trajectory.json  # reproducibility smoke test
 ## License
 
 MIT. See `LICENSE`.
+
+## Chance floor
+
+`agentreplay chance` scores never-calls, always-calls and seeded random callers
+against tool-call-presence assertions derived from synthetic trajectories.
+In `results/636-chance-floor.json` the random caller passes 0.4975 of 24000
+assertions, never-calls 0.3956 and always-calls 0.6044 (call share 0.6).
+Reproduce: `cargo run --locked -q --release -- chance --seed 7 --trajectories 200 --turns 120 --call-share 0.6 --out results/636-chance-floor.json`

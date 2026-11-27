@@ -6,6 +6,7 @@
 //! `k` onward with a different content hash. Determinism checks are then
 //! equality on this chained hash.
 
+pub mod chance;
 pub mod http;
 
 use serde::{Deserialize, Serialize};
