@@ -96,3 +96,9 @@ Reproduce: `cargo run --locked -q --release -- emptyfloor --seed 7 --tasks 4000 
 `agentreplay ordersweep` serves synthetic trajectories through a stub whose uncached steps flip a tool-call decision with a set probability, and sweeps the cached-step share (a stand-in for replay order and prompt-cache state).
 In `results/769-ordersweep.json` the share of 200 trajectories whose replay drifts is 0.47 at cache share 0, 0.41 at 0.25, 0.26 at 0.5, 0.095 at 0.75 and 0.0 at 1 (range 0.47, flip probability 0.005, 120 turns).
 Reproduce: `cargo run --locked -q --release -- ordersweep --seed 7 --trajectories 200 --turns 120 --flip-prob 0.005 --cache-shares 0,0.25,0.5,0.75,1 --out results/769-ordersweep.json`
+
+## Perturbation divergence
+
+`agentreplay perturb` changes one recorded tool result per synthetic trajectory, carries the change into the next request, and replays against a request-sensitive stub (changes its response with probability 0.3 on a differing request) and against the position-keyed recorded endpoint.
+In `results/808-perturb.json` the request-sensitive stub flags drift at the first affected response in 0.305 of 200 trajectories (61 of 200), and the recorded endpoint flags 0.0.
+Reproduce: `cargo run --locked -q --release -- perturb --seed 7 --trajectories 200 --turns 120 --sensitivity 0.3 --out results/808-perturb.json`

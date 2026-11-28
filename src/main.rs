@@ -122,6 +122,20 @@ enum Cmd {
     },
     /// Sweep the cached-step share of a synthetic replay whose uncached steps
     /// flip a tool-call decision; report byte-replay divergence rate.
+    /// Perturb one recorded tool result per synthetic trajectory and count
+    /// where replay flags drift, request-sensitive stub vs recorded endpoint.
+    Perturb {
+        #[arg(long)]
+        seed: u64,
+        #[arg(long)]
+        trajectories: usize,
+        #[arg(long)]
+        turns: usize,
+        #[arg(long)]
+        sensitivity: f64,
+        #[arg(long)]
+        out: std::path::PathBuf,
+    },
     Ordersweep {
         #[arg(long)]
         seed: u64,
@@ -286,6 +300,24 @@ fn main() -> anyhow::Result<()> {
                 "started_at": iso(started),
                 "seeds": [seed],
                 "command": format!("agentreplay ordersweep --seed {seed} --trajectories {trajectories} --turns {turns} --flip-prob {flip_prob} --cache-shares {} --out {}", shares_s.join(","), out.display()),
+                "hardware": "cpu",
+                "wall_s": t0.elapsed().as_secs_f64(),
+                "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],
+            });
+            std::fs::write(&out, serde_json::to_vec_pretty(&v)?)?;
+            println!("wrote {}", out.display());
+        }
+        Cmd::Perturb { seed, trajectories, turns, sensitivity, out } => {
+            let started = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)?
+                .as_secs();
+            let t0 = std::time::Instant::now();
+            let r = agentreplay::perturb::run(seed, trajectories, turns, sensitivity);
+            let mut v = serde_json::to_value(&r)?;
+            v["provenance"] = serde_json::json!({
+                "started_at": iso(started),
+                "seeds": [seed],
+                "command": format!("agentreplay perturb --seed {seed} --trajectories {trajectories} --turns {turns} --sensitivity {sensitivity} --out {}", out.display()),
                 "hardware": "cpu",
                 "wall_s": t0.elapsed().as_secs_f64(),
                 "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],

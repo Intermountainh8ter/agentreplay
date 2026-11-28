@@ -1,0 +1,30 @@
+{
+  "divergence": {
+    "detected": 61,
+    "first_step_detection_rate": 0.305,
+    "later_or_never_rate": 0.695,
+    "perturbed_trajectories": 200,
+    "recorded_detected": 0,
+    "recorded_endpoint_detection_rate": 0.0
+  },
+  "provenance": {
+    "command": "agentreplay perturb --seed 7 --trajectories 200 --turns 120 --sensitivity 0.3 --out results/808-perturb.json",
+    "data_sources": [
+      {
+        "license": "MIT",
+        "url": "synthetic: seeded generator in-repo"
+      }
+    ],
+    "hardware": "cpu",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-28T04:12:05Z",
+    "wall_s": 0.172371825
+  },
+  "seed": 7,
+  "sensitivity": 0.3,
+  "skipped_no_eligible_tool_result": 0,
+  "trajectories": 200,
+  "turns": 120
+}

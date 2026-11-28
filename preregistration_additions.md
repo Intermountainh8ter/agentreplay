@@ -37,3 +37,11 @@ Hypothesis: with 200 synthetic trajectories of 120 turns, per-uncached-step flip
 Metric: `/order_sweep/divergence_rate_range`. Expected: about 0.45, decreasing divergence with cache share (range 0.35-0.55).
 
 Falsifier: a non-monotone divergence curve across cache shares, a range outside 0.35 to 0.55, or nonzero divergence at cache share 1.
+
+## 2026-11-28T04:11:36Z perturb proposal:915e27be209dc8cd58e66060aefeb421c256f7b504c48c35f9dade85a1ef9cd0
+
+Hypothesis: with a stub that changes its next response with probability 0.3 when its request bytes differ from the record, over 200 seeded 120-turn trajectories with one perturbed tool result each (seed 7), the share of trajectories whose replay flags drift at the first affected LlmResponse is between 0.2 and 0.4, while the position-keyed RecordedEndpoint flags 0.0 of them.
+
+Metric: `/divergence/first_step_detection_rate`. Expected: about 0.3 (range 0.2-0.4); recorded-endpoint detection 0.0.
+
+Falsifier: first_step_detection_rate outside 0.2 to 0.4 for the request-sensitive stub, or any detection by the position-keyed recorded endpoint.
