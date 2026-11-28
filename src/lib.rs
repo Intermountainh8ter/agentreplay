@@ -11,6 +11,7 @@ pub mod consistency;
 pub mod cutpoint;
 pub mod emptyfloor;
 pub mod http;
+pub mod ordersweep;
 
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};

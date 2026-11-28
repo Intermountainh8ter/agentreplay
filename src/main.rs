@@ -120,6 +120,22 @@ enum Cmd {
         #[arg(long)]
         out: std::path::PathBuf,
     },
+    /// Sweep the cached-step share of a synthetic replay whose uncached steps
+    /// flip a tool-call decision; report byte-replay divergence rate.
+    Ordersweep {
+        #[arg(long)]
+        seed: u64,
+        #[arg(long)]
+        trajectories: usize,
+        #[arg(long)]
+        turns: usize,
+        #[arg(long)]
+        flip_prob: f64,
+        #[arg(long, value_delimiter = ',')]
+        cache_shares: Vec<f64>,
+        #[arg(long)]
+        out: std::path::PathBuf,
+    },
     Version,
 }
 
@@ -251,6 +267,25 @@ fn main() -> anyhow::Result<()> {
                 "started_at": iso(started),
                 "seeds": [seed],
                 "command": format!("agentreplay emptyfloor --seed {seed} --tasks {tasks} --accept-share {accept_share} --unsolvable-share {unsolvable_share} --out {}", out.display()),
+                "hardware": "cpu",
+                "wall_s": t0.elapsed().as_secs_f64(),
+                "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],
+            });
+            std::fs::write(&out, serde_json::to_vec_pretty(&v)?)?;
+            println!("wrote {}", out.display());
+        }
+        Cmd::Ordersweep { seed, trajectories, turns, flip_prob, cache_shares, out } => {
+            let started = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)?
+                .as_secs();
+            let t0 = std::time::Instant::now();
+            let r = agentreplay::ordersweep::run(seed, trajectories, turns, flip_prob, &cache_shares);
+            let mut v = serde_json::to_value(&r)?;
+            let shares_s: Vec<String> = cache_shares.iter().map(|c| c.to_string()).collect();
+            v["provenance"] = serde_json::json!({
+                "started_at": iso(started),
+                "seeds": [seed],
+                "command": format!("agentreplay ordersweep --seed {seed} --trajectories {trajectories} --turns {turns} --flip-prob {flip_prob} --cache-shares {} --out {}", shares_s.join(","), out.display()),
                 "hardware": "cpu",
                 "wall_s": t0.elapsed().as_secs_f64(),
                 "data_sources": [{"url": "synthetic: seeded generator in-repo", "license": "MIT"}],

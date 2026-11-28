@@ -1,0 +1,45 @@
+{
+  "cache_shares": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "flip_prob": 0.005,
+  "order_sweep": {
+    "divergence_rate": {
+      "0": 0.47,
+      "0.25": 0.41,
+      "0.5": 0.26,
+      "0.75": 0.095,
+      "1": 0.0
+    },
+    "divergence_rate_range": 0.47,
+    "mean_first_drift_step": {
+      "0": 64.6063829787234,
+      "0.25": 47.34146341463415,
+      "0.5": 42.01923076923077,
+      "0.75": 73.15789473684211,
+      "1": 0.0
+    }
+  },
+  "provenance": {
+    "command": "agentreplay ordersweep --seed 7 --trajectories 200 --turns 120 --flip-prob 0.005 --cache-shares 0,0.25,0.5,0.75,1 --out results/769-ordersweep.json",
+    "data_sources": [
+      {
+        "license": "MIT",
+        "url": "synthetic: seeded generator in-repo"
+      }
+    ],
+    "hardware": "cpu",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-28T01:31:57Z",
+    "wall_s": 0.006351598
+  },
+  "seed": 7,
+  "trajectories": 200,
+  "turns": 120
+}

@@ -90,3 +90,9 @@ Reproduce: `cargo run --locked -q --release -- consistency --seed 7 --tasks 4000
 `agentreplay emptyfloor` scores empty, constant and seeded random policies on synthetic tasks where a share of graders accept any output and a share of tasks is unsolvable.
 In `results/729-emptyfloor.json` the empty and constant policies each succeed on 0.2005 of 4000 tasks, equal to the observed accepting share (0.2005), and the random policy on 0.201.
 Reproduce: `cargo run --locked -q --release -- emptyfloor --seed 7 --tasks 4000 --accept-share 0.2 --unsolvable-share 0.38 --out results/729-emptyfloor.json`
+
+## Order sweep
+
+`agentreplay ordersweep` serves synthetic trajectories through a stub whose uncached steps flip a tool-call decision with a set probability, and sweeps the cached-step share (a stand-in for replay order and prompt-cache state).
+In `results/769-ordersweep.json` the share of 200 trajectories whose replay drifts is 0.47 at cache share 0, 0.41 at 0.25, 0.26 at 0.5, 0.095 at 0.75 and 0.0 at 1 (range 0.47, flip probability 0.005, 120 turns).
+Reproduce: `cargo run --locked -q --release -- ordersweep --seed 7 --trajectories 200 --turns 120 --flip-prob 0.005 --cache-shares 0,0.25,0.5,0.75,1 --out results/769-ordersweep.json`

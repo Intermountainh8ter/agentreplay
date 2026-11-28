@@ -29,3 +29,11 @@ Hypothesis: on 4000 seeded synthetic tasks (seed 7) with an empty-answer-accepti
 Metric: `/floor/constant_policy_success_rate`. Expected: within 0.02 of 0.2 (range 0.18-0.22).
 
 Falsifier: constant-policy success rate outside 0.18-0.22, or the random policy exceeding the empty-answer policy by more than 0.02.
+
+## 2026-11-28T01:31:52Z ordersweep proposal:3e59d744379dcca0a873ad90b02a3be50d64aa38bf85c1e1a6710bdd90b8137f
+
+Hypothesis: with 200 synthetic trajectories of 120 turns, per-uncached-step flip probability 0.005 and seed 7, the share of trajectories whose replay drifts falls monotonically as the cached-step share rises from 0 to 1, and the range (divergence at cache share 0 minus at cache share 1) is between 0.35 and 0.55, with 0 divergence at share 1.
+
+Metric: `/order_sweep/divergence_rate_range`. Expected: about 0.45, decreasing divergence with cache share (range 0.35-0.55).
+
+Falsifier: a non-monotone divergence curve across cache shares, a range outside 0.35 to 0.55, or nonzero divergence at cache share 1.
